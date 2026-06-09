@@ -28,14 +28,13 @@ def test_get_product_by_id_404(base_url):
     assert response.status_code == 404
 
 @responses.activate
-def test_post_create_product_201(base_url):
+def test_post_create_product_201(base_url, producto_valido):
     # Arrange
     url = f"{base_url}/api/products"
-    payload = {"name": "Mouse", "price": 25.0}
-    responses.add(responses.POST, url, json={"id": 2, "name": "Mouse", "price": 25.0}, status=201)
+    responses.add(responses.POST, url, json={"id": 2, "name": "Monitor 24 Pulgadas", "price": 150.0}, status=201)
     
     # Act
-    response = requests.post(url, json=payload)
+    response = requests.post(url, json=producto_valido)
     
     # Assert
     assert response.status_code == 201
@@ -43,7 +42,7 @@ def test_post_create_product_201(base_url):
 
 @responses.activate
 def test_post_duplicate_product_500(base_url):
-    # Arrange: Este test expone la trampa principal del código Java
+    # Arrange
     url = f"{base_url}/api/products"
     payload = {"name": "Laptop", "price": 1000.0}
     responses.add(responses.POST, url, json={"error": "Internal Server Error"}, status=500)

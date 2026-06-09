@@ -4,8 +4,7 @@ import responses
 
 @responses.activate
 def test_regression_duplicate_product_throws_500_not_400(base_url):
-    # Arrange: Verificamos que el bug del DuplicateProductException siga arrojando 500
-    # hasta que el equipo de desarrollo implemente el @ExceptionHandler
+    # Arrange
     url = f"{base_url}/api/products"
     payload = {"name": "ProductoExistente"}
     responses.add(responses.POST, url, status=500)
@@ -15,4 +14,4 @@ def test_regression_duplicate_product_throws_500_not_400(base_url):
     
     # Assert
     assert response.status_code == 500
-    assert response.status_code != 400 # Falla explícita del diseño actual
+    assert response.status_code != 400
