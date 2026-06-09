@@ -32,13 +32,3 @@ Me generó dudas la falta de un manejo global de excepciones (por ejemplo, usand
 **3. ¿Cómo organizarías los tests si esta API tuviera 10 endpoints en vez de 5?**
 Aplicaría una arquitectura más modular, similar a la división por controladores que se utiliza en frameworks de desarrollo. Separaría la carpeta `tests/` por dominios o entidades (ej. `tests/products/`, `tests/users/`, `tests/orders/`). Dentro de cada una mantendría la división por tipo de prueba (`functional`, `integration`). Además, agruparía las pruebas utilizando clases de Pytest (`class TestProductCreation:`, `class TestProductRetrieval:`) para compartir fixtures específicos y optimizar el setup/teardown de la base de datos sin sobrecargar el `conftest.py` global.
 ```
-
----
-
-### ¿Cómo subo estas correcciones finales?
-Solo debes hacer un commit arreglando estos dos archivos:
-
-```bash
-git add CasosPrueba.md README.md
-git commit -m "Fix: Restaurar casos perdidos, cumplir cobertura por endpoint y corregir markdown de README"
-git push origin main
