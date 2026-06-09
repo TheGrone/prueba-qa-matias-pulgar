@@ -1,15 +1,11 @@
-# Informe de Pruebas y Hallazgos
+## Resumen de Ejecución
+* **Total de tests automatizados:** 9 (6 Funcionales, 2 Integración, 1 Regresión)
+* **Tests pasados:** 9 (Considerando los mocks del comportamiento actual)
+* **Defectos reportados:** 1 crítico.
 
-## 1. Resumen de Ejecución
-- **Total de tests automatizados:** 2 (Mockeados para la evaluación)
-- **Tests exitosos (Passed):** 1
-- **Tests fallidos (Failed / Comportamiento anómalo):** 1
-
-## 2. Detalle de Fallos Críticos
-- **Test:** `test_crear_producto_nombre_duplicado`
-- **Resultado Esperado:** Ante la duplicidad de un nombre, la API debería retornar un código `400 Bad Request` indicando la falla de validación de negocio al cliente.
-- **Resultado Real:** La API retorna un código `500 Internal Server Error`.
-- **Análisis de Causa Raíz:** Al auditar el código fuente provisto, se constata que en `ProductService.java` se arroja una `DuplicateProductException`. Sin embargo, esta excepción no está siendo capturada ni manejada en `ProductController.java` mediante un `@ExceptionHandler`.
-
-## 3. Conclusión y Recomendación
-**El componente NO está listo para hacer merge a la rama principal.** El error 500 expone vulnerabilidades en la estabilidad del servidor ante errores operativos comunes. Se recomienda bloquear el pase a producción hasta que el equipo de desarrollo implemente un controlador global de excepciones (GlobalExceptionHandler) que formatee correctamente el error.
+## Reporte de Hallazgos
+1. **Fallo Arquitectónico en POST /products (Duplicidad):** * **Resultado Esperado:** Al enviar un producto con un nombre ya existente, la API debería retornar un `400 Bad Request` indicando el error de validación.
+   * **Resultado Real:** La API retorna un `500 Internal Server Error` debido a que la excepción `DuplicateProductException` no está controlada globalmente en un `@ControllerAdvice`.
+   
+## Conclusión
+El componente **NO está listo para merge** en un ambiente productivo. El error 500 ante una validación de negocio (duplicidad) romperá la experiencia del cliente o frontend. Se requiere implementar un manejo de excepciones antes de la liberación.
