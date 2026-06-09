@@ -43,3 +43,21 @@ def test_crear_producto_nombre_duplicado(base_url, producto_valido):
     # Assert
     # Validamos que el servidor está arrojando el error 500 no controlado
     assert response.status_code == 500
+
+@responses.activate
+def test_obtener_producto_inexistente(base_url):
+    # Arrange
+    url = f"{base_url}/api/products/999"
+    
+    # Mockeamos la respuesta de Spring Boot cuando Optional.empty() retorna 404
+    responses.add(
+        responses.GET,
+        url,
+        status=404
+    )
+
+    # Act
+    response = requests.get(url)
+
+    # Assert
+    assert response.status_code == 404    
