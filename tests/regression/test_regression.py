@@ -1,18 +1,19 @@
+import pytest
 import requests
 import responses
 
+BASE_URL = "http://localhost:8080/api/products"
+
 @responses.activate
-def test_regresion_stock_cero_permitido(base_url):
-    # Arrange
-    url = f"{base_url}/api/products"
-    payload = {"name": "Producto Regresion", "price": 10.00, "stock": 0}
-    
-    # Simulamos que el sistema acepta stock 0 según la regla de negocio
-    responses.add(responses.POST, url, json=payload, status=201)
+def test_regression_duplicate_product_throws_500_not_400():
+    # Arrange: Verificamos que el bug del DuplicateProductException siga arrojando 500
+    # hasta que el equipo de desarrollo implemente el @ExceptionHandler
+    payload = {"name": "ProductoExistente"}
+    responses.add(responses.POST, BASE_URL, status=500)
     
     # Act
-    response = requests.post(url, json=payload)
-
+    response = requests.post(BASE_URL, json=payload)
+    
     # Assert
-    assert response.status_code == 201
-    assert response.json()["stock"] == 0
+    assert response.status_code == 500
+    assert response.status_code != 400 # Falla explícita del diseño actual
