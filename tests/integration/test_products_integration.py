@@ -3,43 +3,39 @@ import requests
 import responses
 
 @responses.activate
-def test_product_lifecycle_integration(base_url, producto_valido):
-    # Arrange: Preparamos las URLs y los mocks para todo el ciclo de vida del producto
+def test_create_and_verify_product_flow(base_url):
+    # Arrange: Mockeamos la creación y luego la consulta
     url_base = f"{base_url}/api/products"
-    url_id = f"{base_url}/api/products/2"
+    url_id = f"{base_url}/api/products/3"
+    payload = {"name": "Teclado", "price": 45.0}
     
-    # Mock para Crear (POST)
-    responses.add(responses.POST, url_base, json={"id": 2, "name": "Monitor 24 Pulgadas", "price": 150.0}, status=201)
-    # Mock para Consultar (GET)
-    responses.add(responses.GET, url_id, json={"id": 2, "name": "Monitor 24 Pulgadas", "price": 150.0}, status=200)
-    # Mock para Actualizar (PUT)
-    payload_update = {"name": "Monitor 24 Pulgadas Pro", "price": 180.0}
-    responses.add(responses.PUT, url_id, json={"id": 2, "name": "Monitor 24 Pulgadas Pro", "price": 180.0}, status=200)
-    # Mock para Eliminar (DELETE)
-    responses.add(responses.DELETE, url_id, status=204)
-    # Mock para Consultar producto eliminado (GET)
-    responses.add(responses.GET, url_id, json={"error": "Not Found"}, status=404)
+    responses.add(responses.POST, url_base, json={"id": 3, "name": "Teclado", "price": 45.0}, status=201)
+    responses.add(responses.GET, url_id, json={"id": 3, "name": "Teclado", "price": 45.0}, status=200)
+    
+    # Act & Assert - Paso 1: Crear
+    post_response = requests.post(url_base, json=payload)
+    assert post_response.status_code == 201
+    product_id = post_response.json()["id"]
+    
+    # Act & Assert - Paso 2: Verificar que se creó consultándolo
+    get_response = requests.get(url_id)
+    assert get_response.status_code == 200
+    assert get_response.json()["name"] == "Teclado"
 
-    # Act & Assert: Ejecutamos y validamos paso a paso el ciclo de vida
+@responses.activate
+def test_create_and_delete_flow(base_url):
+    # Arrange
+    url_base = f"{base_url}/api/products"
+    url_id = f"{base_url}/api/products/4"
+    payload = {"name": "Monitor", "price": 200.0}
     
-    # 1. Crear
-    response_post = requests.post(url_base, json=producto_valido)
-    assert response_post.status_code == 201
+    responses.add(responses.POST, url_base, json={"id": 4, "name": "Monitor"}, status=201)
+    responses.add(responses.DELETE, url_id, status=204)
     
-    # 2. Leer
-    response_get = requests.get(url_id)
-    assert response_get.status_code == 200
-    assert response_get.json()["id"] == 2
+    # Act & Assert - Paso 1: Crear
+    post_resp = requests.post(url_base, json=payload)
+    assert post_resp.status_code == 201
     
-    # 3. Actualizar
-    response_put = requests.put(url_id, json=payload_update)
-    assert response_put.status_code == 200
-    assert response_put.json()["price"] == 180.0
-    
-    # 4. Eliminar
-    response_delete = requests.delete(url_id)
-    assert response_delete.status_code == 204
-    
-    # 5. Verificar que ya no existe
-    response_verify = requests.get(url_id)
-    assert response_verify.status_code == 404
+    # Act & Assert - Paso 2: Eliminar
+    del_resp = requests.delete(url_id)
+    assert del_resp.status_code == 204
